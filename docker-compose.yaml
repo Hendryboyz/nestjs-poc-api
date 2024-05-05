@@ -1,0 +1,25 @@
+version: '3.5'
+services:
+
+  redis:
+    image: redis:7.0.5
+    restart: always
+    ports:
+      - '6379:6379'
+    command: /usr/local/bin/redis-server /config/redis.conf
+    volumes: 
+      - ./local/redis.conf:/config/redis.conf
+      - ./local/.persist/redis/:/data
+
+  mongo:
+    image: mongo:6.0.3
+    restart: always
+    ports:
+      - '27017:27017'
+    command: mongod --dbpath /data/db --port 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ailabs1337tw
+    volumes:
+      - ./local/.persist/mongo/data:/data/db
+
