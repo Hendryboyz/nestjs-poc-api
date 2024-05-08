@@ -3,8 +3,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';
-import * as api from 'superagent';
 import { JwtService } from '@nestjs/jwt';
+import { AuthService } from './auth.service';
+import { OAuthUserInfo } from './auth.types';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -13,6 +14,7 @@ export class AuthController {
 
   constructor(
     private readonly jwt: JwtService,
+    private readonly auth: AuthService,
   ) {
     
   }
@@ -57,17 +59,20 @@ export class AuthController {
 
 
   @Get('google/redirect')
-  public async googleCallback(@Req() req: Request) {
+  public async googleCallback(@Req() req: Request, @Res() res: Response) {
     const code = req.query['code'].toString();
     if (!code) {
       throw new BadRequestException(`Authorize with google fail: missing access token`)
     }
     const oauth2Client = this.buildOAuth2Client();
     let { tokens } = await oauth2Client.getToken(code)
-    return await this.getUserinfo(tokens);
+    const userInfo = this.parseUserInfo(tokens);
+    const token = this.auth.generateAuthJwtToken(userInfo);
+    res.cookie('auth-token', token)
+    return userInfo
   }
 
-  private async getUserinfo(tokens: Credentials) {
+  private parseUserInfo(tokens: Credentials): OAuthUserInfo {
     const {
       // access_token: accessToken,
       id_token: jwtToken
@@ -80,6 +85,7 @@ export class AuthController {
     this.logger.debug(userinfo);
 
     return {
+      idp: 'google',
       id: userinfo['sub'], // subject
       name: userinfo['name'],
       firstName: userinfo['given_name'],
