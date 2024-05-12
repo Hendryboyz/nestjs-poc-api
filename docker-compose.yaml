@@ -11,6 +11,18 @@ services:
       - ./local/redis.conf:/config/redis.conf
       - ./local/.persist/redis/:/data
 
+  postgresql:
+    image: bitnami/postgresql:13-debian-12
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRESQL_USERNAME: henry_chou
+      POSTGRESQL_PASSWORD: admin1337tw
+      POSTGRESQL_DATABASE: my-demo-db
+    volumes:
+      - ./local/.persist/redis/postgresql:/bitnami/postgresql
+      # - 'postgresql_data:/bitnami/postgresql'
+
   mongo:
     image: mongo:6.0.3
     restart: always
@@ -23,3 +35,6 @@ services:
     volumes:
       - ./local/.persist/mongo/data:/data/db
 
+# volumes:
+#   postgresql_data:
+#     driver: local

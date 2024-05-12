@@ -7,9 +7,16 @@ export default () => ({
     password: process.env.MONGO_PASSWORD || 'admin1337tw',
     dbName: process.env.MONGO_DB_NAME || 'my-demo-db',
   },
+  postgres: {
+    host: process.env.POSTGRES_HOST || 'localhost',
+    port: parseInt(process.env.POSTGRES_PORT, 10) || 5432,
+    user: process.env.POSTGRES_USER || 'henry_chou',
+    password: process.env.POSTGRES_PASSWORD || 'admin1337tw',
+    dbName: process.env.POSTGRES_DB_NAME || 'my-demo-db',
+  },
 });
 
-export interface MongoConfig {
+export interface DatabaseConfig {
   host: string;
   port: number;
   user: string;
