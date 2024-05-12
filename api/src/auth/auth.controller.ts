@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Get, Logger, Req, Res } from '@nestjs/common';
+import { BadRequestException, Controller, Get, HttpStatus, Logger, Req, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { Credentials, OAuth2Client } from 'google-auth-library';
@@ -29,7 +29,6 @@ export class AuthController {
     ];
 
     const authorizationUrl = this.generateAuthUrl(oauth2Client, scopes);
-
     res.redirect(authorizationUrl);
   }
 
@@ -69,7 +68,7 @@ export class AuthController {
     const userInfo = this.parseUserInfo(tokens);
     const token = this.auth.generateAuthJwtToken(userInfo);
     res.cookie('auth-token', token)
-    return userInfo
+    res.status(HttpStatus.OK).json(userInfo)
   }
 
   private parseUserInfo(tokens: Credentials): OAuthUserInfo {
