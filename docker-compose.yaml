@@ -18,8 +18,8 @@ services:
       - '27017:27017'
     command: mongod --dbpath /data/db --port 27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: ailabs1337tw
+      MONGO_INITDB_ROOT_USERNAME: henry_chou
+      MONGO_INITDB_ROOT_PASSWORD: admin1337tw
     volumes:
       - ./local/.persist/mongo/data:/data/db
 
