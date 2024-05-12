@@ -2,13 +2,15 @@ import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { INestApplication, Logger, VersioningType } from "@nestjs/common";
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'; 
+import { ConfigService } from "@nestjs/config";
 import { AppModule } from "./app.module";
 
 const logger = new Logger('main')
-const port = 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const config = app.get(ConfigService);
+
   app.useLogger(
     process.env.NODE_ENV === 'production'
       ? ['error', 'warn', 'log']
@@ -22,6 +24,8 @@ async function bootstrap() {
   if (process.env.ENABLE_OPENAPI === 'true' || process.env.NODE_ENV !== 'production') {
     enableOpenAPI(app);
   }
+
+  const port = config.get<number>('port');
 
   await app.listen(port, () => {
     logger.log(`This server starts to listen on port ${port}`)
