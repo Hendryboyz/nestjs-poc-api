@@ -22,8 +22,13 @@ import configurations from './configurations';
         username: config.get<string>('postgres.user'),
         password: config.get<string>('postgres.password'),
         database: config.get<string>('postgres.dbName'),
-        entities: [],
-        synchronize: config.get<string>('env') !== 'production',
+        /**
+         * use auto load entities to avoid breaking module boundary
+         * https://docs.nestjs.com/techniques/database#auto-load-entities
+         */
+        // entities: [ Identity, User ],
+        autoLoadEntities: true,
+        synchronize: true // config.get<string>('env') !== 'production',
       }),
       inject: [ConfigService]
     }),

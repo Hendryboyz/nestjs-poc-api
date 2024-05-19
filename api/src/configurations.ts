@@ -1,5 +1,5 @@
 export default () => ({
-  env: process.env.NODE_ENV,
+  env: process.env.NODE_ENV || 'local',
   port: parseInt(process.env.PORT, 10) || 4000,
   mongo: {
     host: process.env.MONGO_HOST || 'localhost',
