@@ -12,11 +12,11 @@ import { Identity } from './entities/identity.entity';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
-        global: true,
         secret: config.get<string>('auth.jwtSecret'),
         signOptions: { expiresIn: config.get<number>('auth.expiresInSecs') },
       }),
-      inject: [ConfigService]
+      inject: [ConfigService],
+      global: true,
     }),
     TypeOrmModule.forFeature([ Identity ]),
     UserModule

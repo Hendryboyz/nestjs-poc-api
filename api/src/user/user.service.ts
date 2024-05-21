@@ -23,4 +23,14 @@ export class UserService {
     this.logger.debug(`New user created: ${JSON.stringify(createdOne)}`)
     return createdOne;
   }
+
+  findByIdentity(id: string) {
+    return this.user.findOne({
+      where: {
+        identity: {
+          id
+        }
+      }
+    })
+  }
 }
