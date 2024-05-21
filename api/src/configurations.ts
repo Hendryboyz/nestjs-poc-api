@@ -15,6 +15,10 @@ export default () => ({
     password: process.env.POSTGRES_PASSWORD || 'admin1337tw',
     dbName: process.env.POSTGRES_DB_NAME || 'my-demo-db',
   },
+  auth: {
+    jwtSecret: process.env.JWT_SECRET || 'do-not-use-raw-text-here',
+    expiresInSecs: parseInt(process.env.AUTH_TTL_SECS) || 86400,
+  },
 });
 
 export interface DatabaseConfig {

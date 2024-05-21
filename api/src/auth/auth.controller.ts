@@ -3,7 +3,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';
-import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { OAuthUserInfo } from './auth.types';
 
@@ -13,7 +12,6 @@ export class AuthController {
   private logger = new Logger(this.constructor.name);
 
   constructor(
-    private readonly jwt: JwtService,
     private readonly auth: AuthService,
   ) {
     
@@ -66,9 +64,12 @@ export class AuthController {
     const oauth2Client = this.buildOAuth2Client();
     let { tokens } = await oauth2Client.getToken(code)
     const userInfo = this.parseUserInfo(tokens);
-    const token = this.auth.generateAuthJwtToken(userInfo);
+    const token = await this.auth.generateAuthJwtToken(userInfo);
     res.cookie('auth-token', token)
-    res.status(HttpStatus.OK).json(userInfo)
+    res.status(HttpStatus.OK).json({
+      ...userInfo,
+      accessToken: token,
+    })
   }
 
   private parseUserInfo(tokens: Credentials): OAuthUserInfo {
@@ -80,7 +81,7 @@ export class AuthController {
     // const response = await api.get('https://www.googleapis.com/oauth2/v1/userinfo?alt=json')
     //   .set('Authorization', `Bearer ${accessToken}`)
 
-    const userinfo = this.jwt.decode(jwtToken, { json: true })
+    const userinfo = this.auth.decodeJwt(jwtToken, true);
     this.logger.debug(userinfo);
 
     return {
@@ -89,7 +90,7 @@ export class AuthController {
       name: userinfo['name'],
       firstName: userinfo['given_name'],
       lastName: userinfo['family_name'],
-      email: userinfo['email']
+      email: userinfo['email'],
     }
   }
 }

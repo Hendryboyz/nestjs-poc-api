@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
 import { OAuthUserInfo } from './auth.types';
 import { UserService } from '../user/user.service';
 import { Repository } from 'typeorm';
@@ -12,6 +13,7 @@ export class AuthService {
     @InjectRepository(Identity)
     private readonly identity: Repository<Identity>,
     private readonly user: UserService,
+    private readonly jwt: JwtService,
   ) {
   }
 
@@ -21,9 +23,9 @@ export class AuthService {
       const newIdentity = await this.createIdentity(userInfo.idp, userInfo.id, userInfo.email);
       this.logger.log(`New identity created: ${JSON.stringify(newIdentity)}`);
       await this.user.createNewUser({ ...userInfo }, newIdentity);
-      return this.generateJwtToken(newIdentity);
+      return await this.generateJwtToken(newIdentity);
     } else {
-      return this.generateJwtToken(identity);
+      return await this.generateJwtToken(identity);
     }
   }
 
@@ -46,8 +48,15 @@ export class AuthService {
     return this.identity.save(newInstance);
   }
 
-  private generateJwtToken(identity: Identity): string {
-    // todo using identity id to generate a new user
-    return 'jwt-token';
+  private generateJwtToken(identity: Identity): Promise<string> {
+    const payload = {
+      sub: identity.id,
+      username: identity.identifier,
+    };
+    return this.jwt.signAsync(payload);
+  }
+
+  public decodeJwt(token: string, json: boolean = false): any {
+    return this.jwt.decode(token, { json });
   }
 }
